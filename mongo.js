@@ -1,10 +1,5 @@
 const mongoose = require('mongoose')
 
-// if (process.argv.length < 5) {
-//   console.log('[*] Not enough arguments included')
-//   process.exit(1)
-// }
-
 const password = process.argv[2]
 
 const url =
