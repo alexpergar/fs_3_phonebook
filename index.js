@@ -36,10 +36,10 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => response.json(person))
-    .catch(error => response.status(404).end())
+    .catch(error => next(error))
 })
 
 app.post('/api/persons/', (request, response) => {
@@ -57,31 +57,30 @@ app.post('/api/persons/', (request, response) => {
     })
   }
 
-  // if (persons.find(p => p.name === body.name)) {
-  //   return response.status(409).json({
-  //     error: 'name must be unique'
-  //   })
-  // }
-
-  const newPerson = Person({
-    id   : Math.floor(Math.random() * 1000000),
-    name : body.name,
-    number : body.number
-  })
-    
-  newPerson.save().then(result => {
-    console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
-    response.json(newPerson)
-  })
-
+  Person.findOne({ name: body.name })
+    .then(person => {
+      const newPerson = {
+        name : body.name,
+        number : body.number
+      }
+      if (!person) {
+        Person(newPerson).save()
+          .then(result => {
+            response.json(newPerson)
+        })
+      } else {
+        Person.findByIdAndUpdate(person.id, newPerson)
+          .then(person => response.json(person))
+      }
+    })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const requestId = Number(request.params.id)
-  persons = persons.filter(p => p.id !== requestId)
-
-  response.status(204).end()
-
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -91,6 +90,19 @@ app.get('/info', (request, response) => {
   response.send(message)
 })
 
+app.use((request, response) => {
+  console.log("error")
+  response.status(404).send({ error: 'unknown endpoint' })
+})
+
+app.use((error, request, response, next) => {
+  console.error(error.message)
+  console.error(error.name)
+  if (error.name = 'CastError') {
+    return response.status(400).send({ error: 'malformatted id'})
+  }
+  next(error)
+})
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
