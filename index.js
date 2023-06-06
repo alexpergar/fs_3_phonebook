@@ -84,10 +84,13 @@ app.delete('/api/persons/:id', (request, response, next) => {
 })
 
 app.get('/info', (request, response) => {
-  const message = 
-  `<p>Phonebook has info for ${persons.length} people.</p>
-   <p>${new Date().toString()}</p>`
-  response.send(message)
+  Person.find({}).then(persons => {
+    const message = 
+      `<p>Phonebook has info for ${persons.length} people.</p>
+      <p>${new Date().toString()}</p>`
+    response.send(message)
+  })
+
 })
 
 app.use((request, response) => {
