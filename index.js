@@ -56,11 +56,14 @@ app.post('/api/persons/', (request, response, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const body = request.body
+  const { name, number } = request.body
 
-  Person.findByIdAndUpdate(request.params.id, body,
-    {new: true}, {runValidators: true})
-    .then(person => response.json(person))
+  Person.findByIdAndUpdate(request.params.id, 
+    { name, number },
+    { new: true, runValidators: true, context:'query' })
+    .then(person => {
+      response.json(person)
+    })
     .catch(error => next(error))
 })
 
