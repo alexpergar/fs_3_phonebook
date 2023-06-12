@@ -4,11 +4,11 @@ const url = process.env.MONGODB_URI
 
 mongoose.set('strictQuery',false)
 mongoose.connect(url)
-    .then(result => {
+    .then(() => {
         console.log('Connected to MongoDB')
     })
     .catch(error => {
-        console.log('Error connecting to MongoDB: ', error.message);
+        console.log('Error connecting to MongoDB: ', error.message)
     })
 
 function numberValidator(number) {
@@ -50,4 +50,4 @@ personSchema.set('toJSON', {
 })
 
 const Person = mongoose.model('Person', personSchema)
-module.exports = Person;
+module.exports = Person
